@@ -235,7 +235,7 @@ class BertIteratedPrefixForSequenceClassification(BertPreTrainedModel):
         self.n_encoders = config.num_encoders
 
         self.prefix_tokens = torch.arange(self.pre_seq_len).long()
-        self.prefix_encoders = [PrefixEncoder(config) for _ in range(self.n_layer + 1)]
+        self.prefix_encoders = [PrefixEncoder(config, device=self.bert.device) for _ in range(self.n_layer + 1)]
 
         bert_param = 0
         for name, param in self.bert.named_parameters():

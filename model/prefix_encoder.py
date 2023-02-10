@@ -9,7 +9,7 @@ class PrefixEncoder(torch.nn.Module):
 
     Output shape: (batch-size, prefix-length, 2*layers*hidden)
     '''
-    def __init__(self, config):
+    def __init__(self, config, device=None):
         super().__init__()
         self.prefix_projection = config.prefix_projection
         if self.prefix_projection:
@@ -21,7 +21,7 @@ class PrefixEncoder(torch.nn.Module):
                 torch.nn.Linear(config.prefix_hidden_size, config.num_hidden_layers * 2 * config.hidden_size)
             )
         else:
-            self.embedding = torch.nn.Embedding(config.pre_seq_len, config.num_hidden_layers * 2 * config.hidden_size)
+            self.embedding = torch.nn.Embedding(config.pre_seq_len, config.num_hidden_layers * 2 * config.hidden_size, device=device)
 
     def forward(self, prefix: torch.Tensor):
         if self.prefix_projection:
