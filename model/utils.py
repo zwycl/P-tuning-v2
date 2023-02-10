@@ -8,6 +8,7 @@ from model.token_classification import (
 )
 
 from model.sequence_classification import (
+    BertIteratedPrefixForSequenceClassification,
     BertPrefixForSequenceClassification,
     BertPromptForSequenceClassification,
     RobertaPrefixForSequenceClassification,
@@ -70,6 +71,33 @@ PREFIX_MODELS = {
     }
 }
 
+ITERATED_PREFIX_MODELS = {
+    "bert": {
+        # TaskType.TOKEN_CLASSIFICATION: BertPrefixForTokenClassification,
+        TaskType.SEQUENCE_CLASSIFICATION: BertIteratedPrefixForSequenceClassification,
+        # TaskType.QUESTION_ANSWERING: BertPrefixForQuestionAnswering,
+        # TaskType.MULTIPLE_CHOICE: BertPrefixForMultipleChoice
+    },
+    # "roberta": {
+    #     TaskType.TOKEN_CLASSIFICATION: RobertaPrefixForTokenClassification,
+    #     TaskType.SEQUENCE_CLASSIFICATION: RobertaPrefixForSequenceClassification,
+    #     TaskType.QUESTION_ANSWERING: RobertaPrefixModelForQuestionAnswering,
+    #     TaskType.MULTIPLE_CHOICE: RobertaPrefixForMultipleChoice,
+    # },
+    # "deberta": {
+    #     TaskType.TOKEN_CLASSIFICATION: DebertaPrefixForTokenClassification,
+    #     TaskType.SEQUENCE_CLASSIFICATION: DebertaPrefixForSequenceClassification,
+    #     TaskType.QUESTION_ANSWERING: DebertaPrefixModelForQuestionAnswering,
+    #     TaskType.MULTIPLE_CHOICE: DebertaPrefixForMultipleChoice,
+    # },
+    # "deberta-v2": {
+    #     TaskType.TOKEN_CLASSIFICATION: DebertaV2PrefixForTokenClassification,
+    #     TaskType.SEQUENCE_CLASSIFICATION: None,
+    #     TaskType.QUESTION_ANSWERING: None,
+    #     TaskType.MULTIPLE_CHOICE: None,
+    # }
+}
+
 PROMPT_MODELS = {
     "bert": {
         TaskType.SEQUENCE_CLASSIFICATION: BertPromptForSequenceClassification,
@@ -94,6 +122,19 @@ def get_model(model_args, task_type: TaskType, config: AutoConfig, fix_bert: boo
         config.pre_seq_len = model_args.pre_seq_len
         config.prefix_projection = model_args.prefix_projection
         config.prefix_hidden_size = model_args.prefix_hidden_size
+        
+        model_class = PREFIX_MODELS[config.model_type][task_type]
+        model = model_class.from_pretrained(
+            model_args.model_name_or_path,
+            config=config,
+            revision=model_args.model_revision,
+        )
+    elif model_args.iterated_prefix:
+        config.hidden_dropout_prob = model_args.hidden_dropout_prob
+        config.pre_seq_len = model_args.pre_seq_len
+        config.prefix_projection = model_args.prefix_projection
+        config.prefix_hidden_size = model_args.prefix_hidden_size
+        config.n_encoders = model_args.n_encoders
         
         model_class = PREFIX_MODELS[config.model_type][task_type]
         model = model_class.from_pretrained(

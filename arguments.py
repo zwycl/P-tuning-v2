@@ -128,6 +128,12 @@ class ModelArguments:
             "help": "Will use P-tuning v2 during training"
         }
     )
+    iterated_prefix: bool = field(
+        default=False,
+        metadata={
+            "help": "Will use prompt tuning during training"
+        }
+    )
     prompt: bool = field(
         default=False,
         metadata={
@@ -148,6 +154,12 @@ class ModelArguments:
     ) 
     prefix_hidden_size: int = field(
         default=512,
+        metadata={
+            "help": "The hidden size of the MLP projection head in Prefix Encoder if prefix projection is used"
+        }
+    )
+    num_encoders: int = field(
+        default=3,
         metadata={
             "help": "The hidden size of the MLP projection head in Prefix Encoder if prefix projection is used"
         }
